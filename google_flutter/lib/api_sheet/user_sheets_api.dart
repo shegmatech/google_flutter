@@ -1,4 +1,7 @@
 import 'package:gsheets/gsheets.dart';
+import 'package:google_flutter/model/users.dart';
+
+
 class UserSheetsApi{
   static const _credentials = r'''
   {
@@ -18,11 +21,20 @@ class UserSheetsApi{
 
   //initialize google sheet package
 static final _gsheets = GSheets(_credentials);
-static Worksheet _userSheet;
+
+static Worksheet? _userSheet;
 
 static Future init() async{
-  final spreadsheet =await _gsheets.spreadsheet(_spreadsheetId);
-  _userSheet = await _getWorkSheet(spreadsheet, title: 'Users');
+  try{
+    final spreadsheet =await _gsheets.spreadsheet(_spreadsheetId);
+    _userSheet = await _getWorkSheet(spreadsheet, title: 'Users');
+
+    final firstRow = UserFields.getFields();
+    _userSheet!.values.insertRow(1, firstRow);
+  }catch (e){
+    print('Init Error: $e');
+  }
+
 }
 
 static Future<Worksheet> _getWorkSheet(
